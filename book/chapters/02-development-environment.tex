@@ -1,29 +1,798 @@
 \chapter{Anaconda, Visual Studio Code and Jupyter}
 \label{ch:development-environment}
 
-% This chapter will be researched against current official documentation before
-% its commands and screenshots are finalised.
-
 \section{Learning Objectives}
+\label{sec:ch02-learning-objectives}
 
+By the end of this chapter, you should be able to:
+
+\begin{itemize}
+    \item explain the role of Anaconda, conda, Visual Studio Code and Jupyter in the development environment used throughout this book;
+    \item create and activate an isolated conda environment using Python 3.14;
+    \item explain why project-specific environments are preferable to installing packages into the base environment;
+    \item create a reproducible environment using an \texttt{environment.yml} file;
+    \item configure Visual Studio Code to use the correct conda interpreter;
+    \item select the correct Python kernel for a Jupyter notebook;
+    \item verify that Python 3.14, NumPy, Matplotlib and Pillow are running in the intended environment;
+    \item understand the relationship between the chapter notebooks and the reusable \pyimage{} package; and
+    \item recreate the development environment on another computer.
+\end{itemize}
+
+
+% ============================================================
 \section{The Development Environment Used in This Book}
+\label{sec:development-environment}
 
-\section{Anaconda and Conda Environments}
+Image processing combines programming, numerical computation,
+visualisation and experimentation. A development environment for this
+kind of work therefore needs to support more than simply executing
+Python programs.
 
-\section{Visual Studio Code}
+Throughout this book the primary development environment consists of:
 
-\section{Python and Jupyter Extensions}
+\begin{itemize}
+    \item \textbf{Anaconda Distribution} for Python and the conda
+    package-management system;
+    \item \textbf{Python 3.14} as the target Python release series;
+    \item \textbf{conda environments} for isolating the software
+    dependencies used by the project;
+    \item \textbf{Visual Studio Code} as the principal editor and
+    development environment;
+    \item the \textbf{Python extension for Visual Studio Code} for
+    interpreter selection, editing, running and debugging Python code;
+    \item the \textbf{Jupyter extension for Visual Studio Code} for
+    executing the companion notebooks;
+    \item \textbf{NumPy} for numerical arrays;
+    \item \textbf{Matplotlib} for visualisation;
+    \item \textbf{Pillow} for working with conventional image files;
+    \item \textbf{pytest} for automated testing; and
+    \item the \textbf{\pyimage{} package} developed progressively
+    throughout the book.
+\end{itemize}
 
+Anaconda Distribution combines Python, conda, Jupyter and a broad
+scientific-computing ecosystem within a single distribution
+\cite{anaconda_distribution}. Conda environments allow different
+projects to maintain separate Python versions and dependency sets
+\cite{conda_environments}.
+
+Visual Studio Code provides the common workspace in which the book,
+Jupyter notebooks, Python package, tests and supporting project files
+can all be edited.
+
+
+% ============================================================
+\section{Why Python 3.14?}
+\label{sec:python-314}
+
+The project deliberately targets the Python 3.14 release series.
+
+The environment definition therefore specifies:
+
+\begin{minted}{yaml}
+- python=3.14
+\end{minted}
+
+rather than leaving the Python version unconstrained.
+
+This has two advantages. First, the examples, notebooks and tests can
+be developed against a known language version. Second, a reader who
+recreates the environment later will not silently receive a different
+major or minor Python release.
+
+The environment is not pinned to a specific patch release such as
+\texttt{3.14.x}. Conda may therefore install the most appropriate
+available Python 3.14 patch release for the platform.
+
+\begin{implementationnote}
+The project targets Python 3.14 throughout. If conda reports a
+dependency-resolution problem on a particular platform, check whether
+compatible builds of the requested packages are available for Python
+3.14 before changing the project definition.
+\end{implementationnote}
+
+
+% ============================================================
+\section{How the Tools Fit Together}
+\label{sec:tools-together}
+
+The various tools used in this book have different responsibilities.
+The Python interpreter used by Visual Studio Code, the Python kernel
+used by a notebook and the packages installed by conda should all
+refer to the same project environment.
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+        node distance=11mm and 15mm,
+        every node/.style={
+            font=\small,
+            align=center
+        },
+        toolnode/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=blue!55!black,
+            fill=blue!8,
+            minimum width=38mm,
+            minimum height=12mm
+        },
+        environmentnode/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=green!50!black,
+            fill=green!8,
+            minimum width=45mm,
+            minimum height=14mm
+        },
+        projectnode/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=orange!65!black,
+            fill=orange!10,
+            minimum width=38mm,
+            minimum height=12mm
+        },
+        flowarrow/.style={
+            -{Latex[length=3mm]},
+            thick,
+            draw=black!65
+        }
+    ]
+
+        \node[toolnode] (vscode) {Visual Studio Code};
+
+        \node[environmentnode, below=of vscode] (conda)
+        {Conda environment\\
+        \texttt{image-processing-python}\\
+        Python 3.14};
+
+        \node[projectnode, below left=of conda] (notebooks)
+        {Jupyter\\notebooks};
+
+        \node[projectnode, below=of conda] (package)
+        {\pyimage{}\\package};
+
+        \node[projectnode, below right=of conda] (tests)
+        {pytest\\test suite};
+
+        \draw[flowarrow] (vscode) -- node[right] {selects interpreter} (conda);
+
+        \draw[flowarrow] (conda) -- (notebooks);
+        \draw[flowarrow] (conda) -- (package);
+        \draw[flowarrow] (conda) -- (tests);
+
+    \end{tikzpicture}
+
+    \caption{Relationship between Visual Studio Code, the Python 3.14
+    conda environment and the principal project components.}
+    \label{fig:development-environment}
+\end{figure}
+
+Microsoft's Python documentation describes Visual Studio Code's
+ability to discover conda environments and select a particular
+interpreter for a workspace \cite{vscode_python_environments}.
+
+
+% ============================================================
+\section{Why Use an Isolated Environment?}
+\label{sec:why-conda-environment}
+
+It is possible to install packages directly into Anaconda's
+\texttt{base} environment. For a substantial project, however, this
+quickly becomes undesirable.
+
+Different projects may require different versions of Python or of
+individual libraries. Installing everything into one environment can
+therefore result in dependency conflicts and makes it difficult to
+determine exactly which packages a project requires.
+
+A dedicated environment isolates those dependencies.
+
+For this book the environment is called:
+
+\begin{minted}{text}
+image-processing-python
+\end{minted}
+
+and uses Python 3.14.
+
+
+% ============================================================
+\section{Installing Anaconda Distribution}
+\label{sec:install-anaconda}
+
+Anaconda Distribution is available for Windows, macOS and Linux.
+Installation procedures change over time, so this book deliberately
+does not reproduce version-specific installer filenames.
+
+The current installer and platform-specific instructions should be
+obtained from the official Anaconda documentation
+\cite{anaconda_install}.
+
+After installation, verify conda from a terminal:
+
+\begin{minted}{bash}
+conda --version
+\end{minted}
+
+A second useful check is:
+
+\begin{minted}{bash}
+conda info
+\end{minted}
+
+The available environments can be displayed with:
+
+\begin{minted}{bash}
+conda info --envs
+\end{minted}
+
+
+% ============================================================
+\section{Installing Visual Studio Code}
+\label{sec:install-vscode}
+
+Visual Studio Code is used as the principal editor for the project.
+
+After installation, install the following Microsoft extensions:
+
+\begin{itemize}
+    \item \textbf{Python};
+    \item \textbf{Jupyter}.
+\end{itemize}
+
+The Python extension supports interpreter discovery, running,
+debugging and language features \cite{vscode_python}. The Jupyter
+extension provides direct support for opening and executing
+\texttt{.ipynb} notebooks within Visual Studio Code
+\cite{vscode_jupyter}.
+
+
+% ============================================================
+\section{Creating the Book Environment}
+\label{sec:create-conda-environment}
+
+A conda environment can be created directly from the command line.
+
+Open a terminal and enter:
+
+\begin{minted}{bash}
+conda create --name image-processing-python python=3.14
+\end{minted}
+
+Once creation has completed, activate the environment:
+
+\begin{minted}{bash}
+conda activate image-processing-python
+\end{minted}
+
+The terminal prompt will normally change to show the active
+environment:
+
+\begin{minted}{text}
+(image-processing-python)
+\end{minted}
+
+Verify the selected Python release:
+
+\begin{minted}{bash}
+python --version
+\end{minted}
+
+The result should begin with:
+
+\begin{minted}{text}
+Python 3.14
+\end{minted}
+
+The interpreter location can also be inspected:
+
+\begin{minted}{bash}
+python -c "import sys; print(sys.executable)"
+\end{minted}
+
+
+% ============================================================
+\section{Installing the Initial Packages}
+\label{sec:install-packages}
+
+Activate the project environment before installing packages:
+
+\begin{minted}{bash}
+conda activate image-processing-python
+\end{minted}
+
+The initial packages required by the book can then be installed with:
+
+\begin{minted}{bash}
+conda install numpy matplotlib pillow jupyterlab ipykernel pytest
+\end{minted}
+
+Additional packages such as SciPy, scikit-image and OpenCV will be
+introduced when they are required. The intention is to implement and
+understand the algorithms before relying upon higher-level
+image-processing functions.
+
+
+% ============================================================
+\section{Creating a Reproducible Environment File}
+\label{sec:environment-yml}
+
+At the root of the repository create:
+
+\begin{minted}{text}
+environment.yml
+\end{minted}
+
+with the following contents:
+
+\begin{listing}[htbp]
+    \caption{Initial conda environment definition targeting Python 3.14.}
+    \label{lst:environment-yml}
+
+\begin{minted}{yaml}
+name: image-processing-python
+
+channels:
+  - defaults
+
+dependencies:
+  - python=3.14
+  - numpy
+  - matplotlib
+  - pillow
+  - jupyterlab
+  - ipykernel
+  - pytest
+  - pip
+\end{minted}
+
+\end{listing}
+
+The environment can then be created with:
+
+\begin{minted}{bash}
+conda env create --file environment.yml
+\end{minted}
+
+and activated with:
+
+\begin{minted}{bash}
+conda activate image-processing-python
+\end{minted}
+
+If the definition is subsequently changed, update the existing
+environment with:
+
+\begin{minted}{bash}
+conda env update --file environment.yml --prune
+\end{minted}
+
+The \texttt{--prune} option removes dependencies that are no longer
+present in the environment definition.
+
+
+% ============================================================
+\section{Opening the Project in Visual Studio Code}
+\label{sec:open-vscode}
+
+The repository should be opened as a complete folder rather than by
+opening individual files.
+
+From the repository root, Visual Studio Code can normally be started
+with:
+
+\begin{minted}{bash}
+code .
+\end{minted}
+
+Alternatively, use:
+
+\begin{minted}{text}
+File -> Open Folder
+\end{minted}
+
+and select the repository.
+
+
+% ============================================================
 \section{Selecting the Conda Interpreter}
+\label{sec:vscode-interpreter}
 
-\section{Selecting a Jupyter Kernel}
+Open the Visual Studio Code Command Palette and select:
 
-\section{Opening the Companion Project}
+\begin{minted}{text}
+Python: Select Interpreter
+\end{minted}
 
-\section{Using the Integrated Terminal}
+Choose the interpreter belonging to:
 
-\section{Verifying the Environment}
+\begin{minted}{text}
+image-processing-python
+\end{minted}
 
-\section{Creating a Reproducible Environment}
+The selected interpreter is used by Visual Studio Code for Python
+execution, debugging and language features
+\cite{vscode_python_environments}.
 
+Verify it in the integrated terminal:
+
+\begin{minted}{bash}
+python --version
+python -c "import sys; print(sys.executable)"
+\end{minted}
+
+The first command should report Python 3.14.
+
+
+% ============================================================
+\section{The Python Interpreter and the Jupyter Kernel}
+\label{sec:interpreter-kernel}
+
+A Python interpreter and a Jupyter kernel are closely related but are
+not exactly the same thing.
+
+The interpreter executes Python programs. A Jupyter kernel is a
+long-running computational process used to execute notebook cells.
+Selecting the correct interpreter for source files therefore does not
+guarantee that an already-open notebook is using the same
+environment.
+
+Open the notebook kernel selector and choose the environment
+corresponding to:
+
+\begin{minted}{text}
+image-processing-python
+\end{minted}
+
+The Visual Studio Code Jupyter documentation describes notebook
+execution using a selected Python environment and Jupyter kernel
+\cite{vscode_jupyter}.
+
+
+% ============================================================
+\section{Verifying Python 3.14 in a Notebook}
+\label{sec:verify-python-version}
+
+The companion notebook checks both the executable path and the Python
+version.
+
+A minimal check is:
+
+\begin{listing}[htbp]
+    \caption{Checking the Python release used by a notebook.}
+    \label{lst:check-python-version}
+
+\begin{minted}{python}
+import sys
+
+print(sys.executable)
+print(sys.version)
+
+if sys.version_info[:2] == (3, 14):
+    print("PASS: Python 3.14")
+else:
+    print("FAIL: this project expects Python 3.14")
+\end{minted}
+
+\end{listing}
+
+The notebook deliberately reports a failure rather than terminating.
+This makes it useful for diagnosing an incorrectly selected kernel.
+
+
+% ============================================================
+\section{Verifying the Scientific Python Environment}
+\label{sec:verify-environment}
+
+The following code checks the principal packages used by the opening
+chapters:
+
+\begin{listing}[htbp]
+    \caption{Verifying the principal scientific Python dependencies.}
+    \label{lst:verify-environment}
+
+\begin{minted}{python}
+import sys
+
+import matplotlib
+import numpy as np
+import PIL
+
+print(f"Python:     {sys.version.split()[0]}")
+print(f"NumPy:      {np.__version__}")
+print(f"Matplotlib: {matplotlib.__version__}")
+print(f"Pillow:     {PIL.__version__}")
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{A First Visualisation Test}
+\label{sec:first-visualisation-test}
+
+The environment should also be able to render the small image from
+\cref{ch:introduction}.
+
+\begin{listing}[htbp]
+    \caption{Testing NumPy and Matplotlib inside the conda environment.}
+    \label{lst:first-visualisation-test}
+
+\begin{minted}{python}
+import matplotlib.pyplot as plt
+import numpy as np
+
+image = np.array([
+    [0,   0,  40, 40],
+    [0,  60, 120, 40],
+    [20, 100, 220, 80],
+    [0,  40,  80,  0],
+], dtype=np.uint8)
+
+plt.imshow(
+    image,
+    cmap="gray",
+    vmin=0,
+    vmax=255,
+    interpolation="nearest"
+)
+
+plt.title("Environment verification")
+plt.show()
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Repository Structure}
+\label{sec:repository-structure}
+
+The book, notebooks and reusable software are maintained together in
+one repository.
+
+\begin{minted}{text}
+introduction-to-image-processing-with-python/
+|
+|-- environment.yml
+|-- README.md
+|
+|-- book/
+|   |-- main.tex
+|   |-- preamble.tex
+|   |-- references.bib
+|   `-- ...
+|
+|-- notebooks/
+|   |-- 01-introduction.ipynb
+|   |-- 02-development-environment.ipynb
+|   `-- ...
+|
+`-- project/
+    |-- pyproject.toml
+    |-- src/
+    |   `-- pyimage/
+    `-- tests/
+\end{minted}
+
+The manuscript, notebooks and reusable source code are deliberately
+kept separate while remaining in the same repository.
+
+
+% ============================================================
+\section{The Notebook Is Not the Library}
+\label{sec:notebook-not-library}
+
+Jupyter notebooks encourage experimentation, but they can accumulate
+hidden state when cells are executed in an arbitrary order.
+
+The notebooks are therefore not treated as the definitive
+implementation of the image-processing library.
+
+The development process used throughout the book is:
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+        node distance=8mm,
+        every node/.style={
+            align=center,
+            font=\small
+        },
+        workflowstep/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=blue!55!black,
+            fill=blue!7,
+            minimum width=50mm,
+            minimum height=10mm
+        },
+        finalstep/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=green!55!black,
+            fill=green!8,
+            minimum width=50mm,
+            minimum height=10mm
+        },
+        flowarrow/.style={
+            -{Latex[length=3mm]},
+            thick
+        }
+    ]
+
+        \node[workflowstep] (theory)
+        {Understand the theory};
+
+        \node[workflowstep, below=of theory] (c)
+        {Examine the C approach};
+
+        \node[workflowstep, below=of c] (notebook)
+        {Experiment in the notebook};
+
+        \node[workflowstep, below=of notebook] (python)
+        {Implement in Python};
+
+        \node[workflowstep, below=of python] (validate)
+        {Validate the result};
+
+        \node[finalstep, below=of validate] (package)
+        {Add to the \pyimage{} package};
+
+        \node[finalstep, below=of package] (tests)
+        {Add automated tests};
+
+        \draw[flowarrow] (theory) -- (c);
+        \draw[flowarrow] (c) -- (notebook);
+        \draw[flowarrow] (notebook) -- (python);
+        \draw[flowarrow] (python) -- (validate);
+        \draw[flowarrow] (validate) -- (package);
+        \draw[flowarrow] (package) -- (tests);
+
+    \end{tikzpicture}
+
+    \caption{Development workflow used for image-processing
+    implementations throughout the book.}
+    \label{fig:chapter-development-workflow}
+\end{figure}
+
+
+% ============================================================
+\section{Notebook Execution Discipline}
+\label{sec:notebook-discipline}
+
+Before considering a chapter notebook complete:
+
+\begin{enumerate}
+    \item save the notebook;
+    \item restart the Jupyter kernel;
+    \item run every cell from the beginning;
+    \item confirm that no cell raises an unexpected error; and
+    \item confirm that all figures and numerical results are
+    regenerated correctly.
+\end{enumerate}
+
+
+% ============================================================
+\section{Troubleshooting}
+\label{sec:ch02-troubleshooting}
+
+\subsection{The Notebook Is Not Running Python 3.14}
+
+Run:
+
+\begin{minted}{python}
+import sys
+print(sys.version)
+print(sys.executable)
+\end{minted}
+
+If the version does not begin with \texttt{3.14}, select the
+\texttt{image-processing-python} kernel again.
+
+\subsection{The Environment Does Not Appear in Visual Studio Code}
+
+Confirm that conda can see it:
+
+\begin{minted}{bash}
+conda info --envs
+\end{minted}
+
+Then reopen the interpreter selector in Visual Studio Code
+\cite{vscode_python_environments}.
+
+\subsection{A Package Imports in the Terminal but Not in the Notebook}
+
+Compare:
+
+\begin{minted}{bash}
+python -c "import sys; print(sys.executable)"
+\end{minted}
+
+with:
+
+\begin{minted}{python}
+import sys
+print(sys.executable)
+\end{minted}
+
+Both should refer to the same Python 3.14 conda environment.
+
+
+% ============================================================
+\section{Environment Verification Checklist}
+\label{sec:environment-checklist}
+
+Before moving to the next chapter, verify the following.
+
+\begin{itemize}[label=$\square$]
+
+    \item Anaconda Distribution is installed.
+    \item The \texttt{conda} command is available.
+    \item The \texttt{image-processing-python} environment exists.
+    \item The environment uses Python 3.14.
+    \item Visual Studio Code uses the project interpreter.
+    \item The notebook kernel uses the same environment.
+    \item NumPy imports successfully.
+    \item Matplotlib imports successfully.
+    \item Pillow imports successfully.
+    \item \texttt{environment.yml} specifies \texttt{python=3.14}.
+    \item The Chapter~1 notebook can be restarted and executed from
+    beginning to end.
+
+\end{itemize}
+
+
+% ============================================================
+\section{Project Files}
+\label{sec:ch02-project-files}
+
+\begin{projectfiles}
+
+The principal files associated with this chapter are:
+
+\begin{minted}{text}
+environment.yml
+
+notebooks/
+`-- 02-development-environment.ipynb
+
+project/
+|-- pyproject.toml
+|-- src/
+|   `-- pyimage/
+`-- tests/
+\end{minted}
+
+The \texttt{environment.yml} file defines Python 3.14 and the initial
+project dependencies.
+
+The companion notebook verifies that the expected interpreter and
+scientific libraries are actually being used.
+
+\end{projectfiles}
+
+
+% ============================================================
 \section{Chapter Summary}
+\label{sec:ch02-summary}
+
+This chapter established the development environment used throughout
+the remainder of the book.
+
+Anaconda Distribution provides Python and conda, while a dedicated
+conda environment isolates the project from the base installation and
+from unrelated projects. The project explicitly targets the Python
+3.14 release series through the \texttt{environment.yml} definition.
+
+Visual Studio Code acts as the common development workspace. Its
+Python support uses the selected conda interpreter for Python source
+files, while its Jupyter support allows chapter notebooks to execute
+using a kernel associated with the same environment.
+
+The next chapter introduces the Python language features that are
+particularly important when implementing image-processing algorithms.
