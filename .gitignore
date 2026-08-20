@@ -11,11 +11,12 @@
 *.lof
 *.lol
 *.lot
+*.log
 *.out
 *.run.xml
 *.synctex.gz
 *.toc
-book/main.pdf
+main.pdf
 
 # Python
 __pycache__/
@@ -28,3 +29,5 @@ __pycache__/
 
 # Editors/OS
 .DS_Store
+
+_minted
