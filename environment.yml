@@ -1,0 +1,14 @@
+name: image-processing-python
+
+channels:
+  - defaults
+
+dependencies:
+  - python=3.13
+  - numpy
+  - matplotlib
+  - pillow
+  - jupyterlab
+  - ipykernel
+  - pytest
+  - pip
