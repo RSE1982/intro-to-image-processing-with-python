@@ -1,0 +1,46 @@
+\chapter{Historical Portfolio and Sign-Off Map}
+\label{app:signoff}
+
+This appendix will provide the final cross-reference between the historical
+portfolio/sign-off material and the implementations in this book.
+
+The original coursework specification explicitly required the RAW PBM/PGM/PPM
+I/O functions and listed point, area, geometric and frame operations with star
+values\cite{johnson_uqc146_assignment}. The surviving course webpage lists a
+further set of acceptable lecture additions\cite{johnson_uqc146_web}.
+
+\begin{longtable}{@{}p{0.43\textwidth}cp{0.37\textwidth}@{}}
+\toprule
+\textbf{Historical item} & \textbf{Value} & \textbf{Planned location} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Historical item} & \textbf{Value} & \textbf{Planned location} \\
+\midrule
+\endhead
+Write ASCII PNM file & * & Chapter 6 \\
+RGB to HSI conversion & * & Chapter 9 \\
+HSI to RGB conversion & * & Chapter 9 \\
+Solarise & * & Chapter 12 \\
+Threshold & * & Chapter 12 \\
+Embossing & ** & Chapter 16 \\
+Low-pass filtering & ** & Chapter 15 \\
+Homogeneity-based edge detection & *** & Chapter 17 \\
+Median filtering & **** & Chapter 15 \\
+High-boost filtering & **** & Chapter 16 \\
+Transposition-based rotation & ** & Chapter 19 \\
+Mirroring & ** & Chapter 19 \\
+Patterning using Rylander’s matrices & **** & Chapter 21 \\
+libpng support & ***** & Chapter 23 \\
+\texttt{cjpeg}/\texttt{djpeg} support & ** & Chapter 24 \\
+Endian-ness test & * & Chapter 7 \\
+Huffman encoding/decoding & ******* & Chapter 22 \\
+\bottomrule
+\end{longtable}
+
+\begin{implementationnote}
+The items beyond those visible in the surviving coursework specification and
+course webpage are currently recorded from the surviving sign-off list. Before
+publication, the original sign-off document should be added to the bibliography
+and used as the definitive citation for those entries.
+\end{implementationnote}

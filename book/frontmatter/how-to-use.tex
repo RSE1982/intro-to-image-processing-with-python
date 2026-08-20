@@ -1,0 +1,46 @@
+\chapter*{How to Use This Book}
+\addcontentsline{toc}{chapter}{How to Use This Book}
+
+The book is designed to be read alongside its companion project. Each major
+technique is approached in four connected forms:
+
+\begin{enumerate}
+    \item the chapter explains the concept, mathematics and algorithm;
+    \item the companion notebook develops and explores the implementation;
+    \item the finished implementation is added to the \pyimage{} package; and
+    \item automated tests verify the behaviour of the reusable implementation.
+\end{enumerate}
+
+The normal progression is therefore:
+
+\begin{center}
+\textbf{theory} $\rightarrow$ \textbf{algorithm} $\rightarrow$
+\textbf{notebook} $\rightarrow$ \textbf{library} $\rightarrow$
+\textbf{tests} $\rightarrow$ \textbf{library comparison}.
+\end{center}
+
+The library comparison comes last deliberately. Where a technique can be
+implemented directly, the book first constructs it from basic Python and/or
+NumPy operations. Established libraries are then used to compare behaviour,
+performance and API design.
+
+\section*{Companion notebooks}
+
+The Jupyter notebooks mirror the chapter numbering. For example,
+\texttt{notebooks/17-edge-detection.ipynb} accompanies Chapter~17. Notebooks
+may include exploratory code and intermediate implementations that do not
+belong in the final package.
+
+\section*{The \pyimage{} package}
+
+The canonical reusable implementations live under
+\texttt{project/src/pyimage/}. Once an implementation has been developed and
+validated in a notebook, the polished function is added to the package and
+covered by the test suite.
+
+\section*{Historical sign-off items}
+
+Some chapters contain a box labelled \emph{Original portfolio/sign-off item}.
+The stars reproduce the relative weighting used in the historical material
+where that weighting can be verified. They are retained as a record of the
+original practical scope, not as assessment marks for this book.

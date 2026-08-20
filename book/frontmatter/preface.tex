@@ -1,0 +1,39 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+Image processing is an unusually effective way to learn numerical programming.
+An image is immediately recognisable, yet it can also be treated as structured
+numerical data. A small change to an algorithm can often be seen at once in the
+resulting image, while the same program raises deeper questions about data
+representation, numerical range, file formats, colour models, filtering,
+geometry and compression.
+
+The starting point for this book is personal as well as historical. In 2001 I
+took UQC146S1, \emph{Introductory Image Processing in C}, at the University of
+the West of England (UWE). The module was taught by Ian Johnson, a lecturer at
+UWE at the time and the module author named in the surviving specification
+\cite{uwe_uqc146_spec}. The module combined a limited introduction to C with
+practical image-processing work\cite{johnson_uqc146_intro}. Its course website
+directed students towards progressively implementing techniques introduced in
+lectures and maintaining a portfolio of image-processing functions
+\cite{johnson_uqc146_web}. The coursework specification explicitly described
+that portfolio as a library of functions and gave importance not only to code,
+but also to programming style, documentation and testing
+\cite{johnson_uqc146_assignment}.
+
+This book preserves that implementation-led spirit while moving the work into a
+modern Python environment. Algorithms are developed and understood before they
+are replaced by convenient library calls. NumPy, Pillow, OpenCV and
+scikit-image are valuable tools, but they become more useful once the behaviour
+beneath their APIs is understood.
+
+A reusable Python package, \pyimage{}, is developed alongside the text. The
+companion Jupyter notebooks provide executable chapter material, while a pytest
+suite verifies the library independently. The intention is that the code shown
+in the book should form part of a working software project rather than a set of
+isolated fragments.
+
+This is a development edition. References, terminology, algorithms and
+implementation details will be checked chapter by chapter against appropriate
+primary and authoritative sources before the manuscript is considered ready for
+publication.
