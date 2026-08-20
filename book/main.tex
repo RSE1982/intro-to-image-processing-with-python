@@ -1,0 +1,83 @@
+\documentclass[
+    11pt,
+    a4paper,
+    oneside,
+    headings=big,
+    parskip=half
+]{scrbook}
+
+\input{preamble}
+
+\begin{document}
+
+% ============================================================
+% Front matter
+% ============================================================
+\frontmatter
+
+\input{frontmatter/half-title}
+\cleardoublepage
+
+\input{frontmatter/title}
+\cleardoublepage
+
+\input{frontmatter/copyright}
+\cleardoublepage
+
+% Optional pages can be enabled later.
+% \input{frontmatter/dedication}
+% \cleardoublepage
+
+\input{frontmatter/acknowledgements}
+\input{frontmatter/preface}
+\input{frontmatter/how-to-use}
+\input{frontmatter/companion-files}
+\input{frontmatter/conventions}
+\input{frontmatter/abbreviations}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+
+% ============================================================
+% Main matter
+% ============================================================
+\mainmatter
+
+\part{Foundations}
+\include{chapters/01-introduction}
+
+% Enable chapters as they are drafted.
+% \include{chapters/02-development-environment}
+% \include{chapters/03-python-for-image-processing}
+% \include{chapters/04-numpy}
+
+% ============================================================
+% Appendices
+% ============================================================
+\appendix
+
+% Enable appendices as they are completed.
+% \include{appendices/a-signoff}
+% \include{appendices/b-mathematics}
+% \include{appendices/c-numpy}
+% \include{appendices/d-formats}
+% \include{appendices/e-c-to-python}
+% \include{appendices/f-project-files}
+
+% ============================================================
+% Back matter
+% ============================================================
+\backmatter
+
+\printbibliography[
+    heading=bibintoc,
+    title={References}
+]
+
+% Enable once populated.
+% \printindex
+% \input{backmatter/author}
+
+\end{document}

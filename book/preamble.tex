@@ -1,0 +1,185 @@
+% ============================================================
+% Introduction to Image Processing with Python
+% Shared LaTeX preamble
+% Compile with LuaLaTeX + Biber (latexmk recommended).
+% ============================================================
+
+% ------------------------------------------------------------
+% Book metadata
+% ------------------------------------------------------------
+\newcommand{\booktitle}{Introduction to Image Processing with Python}
+\newcommand{\booksubtitle}{Algorithms, Implementation and Practical Image Processing}
+\newcommand{\bookauthor}{Robert Elliott BSc (Hons), MBCS}
+
+% ------------------------------------------------------------
+% Typography and language
+% ------------------------------------------------------------
+\usepackage{fontspec}
+\usepackage[british]{babel}
+\usepackage{csquotes}
+\usepackage{microtype}
+
+% Keep the default LuaLaTeX fonts during drafting. Publication fonts and
+% final trim size should be chosen once the target print platform is known.
+
+% ------------------------------------------------------------
+% Page layout -- drafting size
+% ------------------------------------------------------------
+\usepackage[
+    a4paper,
+    inner=30mm,
+    outer=25mm,
+    top=25mm,
+    bottom=30mm
+]{geometry}
+
+% ------------------------------------------------------------
+% Running heads and page numbers
+% ------------------------------------------------------------
+\usepackage[automark]{scrlayer-scrpage}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark[section]{chapter}
+
+% ------------------------------------------------------------
+% Mathematics
+% ------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{siunitx}
+
+% ------------------------------------------------------------
+% Graphics
+% ------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{tikz}
+
+% ------------------------------------------------------------
+% Tables
+% ------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+
+% ------------------------------------------------------------
+% Lists
+% ------------------------------------------------------------
+\usepackage{enumitem}
+
+% ------------------------------------------------------------
+% Code listings
+% ------------------------------------------------------------
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{codebackground}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{210,210,210}
+\definecolor{codecomment}{RGB}{70,120,70}
+\definecolor{codekeyword}{RGB}{25,70,140}
+\definecolor{codestring}{RGB}{150,60,40}
+
+\lstdefinestyle{python}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekeyword},
+    commentstyle=\color{codecomment},
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebackground},
+    frame=single,
+    rulecolor=\color{codeframe},
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    keepspaces=true,
+    tabsize=4,
+    columns=fullflexible
+}
+
+\lstset{style=python}
+
+% ------------------------------------------------------------
+% Reusable boxes
+% ------------------------------------------------------------
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{historicalnote}{
+    title=Historical note,
+    breakable,
+    colback=black!2,
+    colframe=black!35
+}
+
+\newtcolorbox{implementationnote}{
+    title=Implementation note,
+    breakable,
+    colback=black!2,
+    colframe=black!35
+}
+
+\newtcolorbox{portfolio}{
+    title=Original portfolio/sign-off item,
+    breakable,
+    colback=black!2,
+    colframe=black!35
+}
+
+\newtcolorbox{projectfiles}{
+    title=Project files,
+    breakable,
+    colback=black!2,
+    colframe=black!35
+}
+
+\newtcolorbox{definitionbox}{
+    title=Definition,
+    breakable,
+    colback=black!2,
+    colframe=black!35
+}
+
+% ------------------------------------------------------------
+% References
+% ------------------------------------------------------------
+\usepackage[
+    backend=biber,
+    style=ieee,
+    sorting=none,
+    giveninits=true
+]{biblatex}
+\addbibresource{references.bib}
+
+% ------------------------------------------------------------
+% Captions and cross-references
+% ------------------------------------------------------------
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\hypersetup{
+    pdftitle={\booktitle},
+    pdfauthor={Robert Elliott},
+    hidelinks
+}
+
+% ------------------------------------------------------------
+% Index support
+% ------------------------------------------------------------
+\usepackage{makeidx}
+\makeindex
+
+% ------------------------------------------------------------
+% Convenience commands
+% ------------------------------------------------------------
+\newcommand{\pyimage}{\texttt{pyimage}}
+\newcommand{\python}{Python}
+\newcommand{\numpy}{NumPy}
+\newcommand{\opencv}{OpenCV}
+\newcommand{\scikitimage}{scikit-image}
+\newcommand{\historicalstars}[1]{\texttt{#1}}

@@ -1,0 +1,203 @@
+\chapter{Introduction to Image Processing}
+\label{ch:introduction}
+
+\section{Learning Objectives}
+
+By the end of this chapter, you should be able to:
+
+\begin{itemize}
+    \item explain what is meant by digital image processing;
+    \item distinguish image processing from computer graphics;
+    \item describe a digital image as numerical data;
+    \item explain why arrays are central to image processing;
+    \item describe the implementation-led approach used in this book; and
+    \item identify the relationship between the book, its Jupyter notebooks and
+          the \pyimage{} package.
+\end{itemize}
+
+\section{Introduction}
+
+Digital image processing is concerned with representing images as data and
+applying computational operations to that data. Depending on the application,
+those operations may enhance an image, transform its appearance, extract
+measurements, compare it with another image, reduce its storage requirements or
+prepare it for further analysis.
+
+This book approaches image processing as both a mathematical subject and a
+programming discipline. The objective is not merely to learn which library
+function performs a task, but to understand enough of the underlying operation
+to implement, test and evaluate it.
+
+\begin{historicalnote}
+The origins of this book lie in UQC146S1, \emph{Introductory Image Processing
+in C}, which the author took at the University of the West of England in 2001.
+The module was taught by Ian Johnson, a UWE lecturer at the time and the module
+author identified in the surviving specification\cite{uwe_uqc146_spec}. The
+teaching material described the module as covering both the C programming
+language and basic image processing, with only a limited period spent
+introducing C before moving on to image-processing work
+\cite{johnson_uqc146_intro}. This book keeps the same practical emphasis but
+uses Python as the implementation language.
+\end{historicalnote}
+
+\section{Image Processing and Computer Graphics}
+
+The historical course material made a useful distinction between computer
+graphics and image processing: computer graphics is principally concerned with
+generating images, while image processing begins with existing image data and
+manipulates or analyses it. That distinction is useful for orientation, even
+though modern applications often combine the two areas.
+
+In this book, an image is therefore primarily treated as data. Displaying the
+image is important, but the display is only one representation of the numeric
+values held by the program.
+
+\section{Images as Numerical Data}
+
+At its simplest, a greyscale digital image can be represented as a rectangular
+array of numbers. Each array element corresponds to a sample at a particular
+location in the image. In an 8-bit greyscale representation, a value of 0 is
+commonly associated with black and 255 with white, with intermediate values
+representing intermediate levels of brightness.
+
+A tiny image can therefore be constructed directly with NumPy:
+
+\begin{lstlisting}[
+    caption={A small greyscale image represented as a NumPy array.},
+    label={lst:first-array}
+]
+import numpy as np
+
+image = np.array([
+    [0,   0,  40,  40],
+    [0,  60, 120,  40],
+    [20, 100, 220, 80],
+    [0,  40,  80,   0],
+], dtype=np.uint8)
+\end{lstlisting}
+
+The choice of \texttt{uint8} is significant. It limits each array element to an
+unsigned 8-bit integer and therefore gives it a finite numeric range. Later
+chapters will examine the consequences of overflow, underflow, clipping and
+data-type conversion in detail.
+
+\section{Images as Arrays}
+
+The original course material emphasised that an image may be viewed logically
+as a two-dimensional array while still being stored in memory or on disk as a
+sequence of pixel values. That distinction remains important in modern Python:
+NumPy gives us a convenient multidimensional view, while the underlying data
+still has a concrete representation in memory.
+
+For a greyscale image, a common array shape is:
+
+\begin{equation}
+    H \times W,
+\end{equation}
+
+where $H$ is the image height and $W$ is its width. A colour image may instead
+use a shape such as:
+
+\begin{equation}
+    H \times W \times 3,
+\end{equation}
+
+where the final dimension contains three colour components, commonly red,
+green and blue.
+
+\section{An Implementation-Led Approach}
+
+Many modern image-processing operations can be expressed with a single library
+call. That is valuable in production software, but it can conceal the decisions
+an algorithm makes about numeric range, border handling, interpolation,
+normalisation or colour representation.
+
+The approach used throughout this book is therefore:
+
+\begin{enumerate}
+    \item understand the operation conceptually;
+    \item express the operation mathematically where appropriate;
+    \item develop pseudocode;
+    \item implement the operation directly;
+    \item test it against known cases and boundary conditions;
+    \item examine the result visually and numerically;
+    \item move the validated implementation into the \pyimage{} package; and
+    \item compare it with established library implementations.
+\end{enumerate}
+
+This reflects an important feature of the historical portfolio. The coursework
+was not simply a request for output images: it required a library of functions,
+documentation and a test plan, and placed explicit value on programming style
+and demonstrated code\cite{johnson_uqc146_assignment}.
+
+\section{The Companion Project}
+
+The practical work is divided between Jupyter notebooks and a conventional
+Python package. The notebooks are used to investigate algorithms, display
+intermediate results and experiment with parameter values. The package contains
+the reusable versions of the completed functions. A separate pytest suite
+provides repeatable verification.
+
+\begin{projectfiles}
+\textbf{Companion notebook}
+
+\texttt{notebooks/01-introduction.ipynb}
+
+\medskip
+
+\textbf{Reusable package}
+
+\texttt{project/src/pyimage/}
+
+\medskip
+
+\textbf{Automated tests}
+
+\texttt{project/tests/}
+\end{projectfiles}
+
+\section{From C to Python}
+
+The historical module used C and deliberately exposed implementation details
+such as numeric types, pointers, manual allocation and linkable libraries. A
+Python implementation removes some of that machinery, but the underlying
+questions do not disappear. Images still have dimensions and data types; binary
+files still contain bytes in a defined order; numerical operations still have
+ranges and precision; reusable software still needs a clear API; and algorithms
+still need to be tested.
+
+For that reason, the book will not treat Python as a way to avoid the technical
+content of the original course. Instead, Python allows more time to be spent on
+the image-processing algorithms while NumPy makes the representation of image
+data explicit and inspectable.
+
+\section{What the Book Will Build}
+
+Over the following chapters the \pyimage{} package will grow to cover file I/O,
+colour conversion, point operations, convolution, filtering, edge detection,
+geometric operations, frame operations, compression and selected standard image
+formats. The historical portfolio and sign-off material provides part of the
+practical roadmap, while modern material extends the project beyond the scope
+of the original module.
+
+\section{Chapter Summary}
+
+A digital image can be treated as structured numerical data. Image processing
+operates on that data to transform, enhance, combine, compress or analyse an
+image. This book develops those operations by implementing them before relying
+on high-level library equivalents. The chapter notebooks support exploration;
+the \pyimage{} package holds the finished implementations; and the automated
+tests provide independent verification.
+
+\section{Review Questions}
+
+\begin{enumerate}
+    \item What is the practical distinction between image processing and
+          computer graphics used in this book?
+    \item Why is an array a useful representation of a digital image?
+    \item What information is expressed by the shape $H \times W \times 3$?
+    \item Why might a direct implementation be useful even when a library
+          already supplies the same operation?
+    \item What different roles do the notebooks, the \pyimage{} package and the
+          test suite play in the companion project?
+\end{enumerate}
