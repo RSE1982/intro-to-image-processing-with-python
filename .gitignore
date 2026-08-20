@@ -17,6 +17,7 @@
 *.synctex.gz
 *.toc
 *.pdf
+*.minted
 
 # Python
 __pycache__/
@@ -32,3 +33,9 @@ __pycache__/
 
 # LaTeX minted files
 _minted
+
+# Python egg info
+*.egg-info/
+
+# Temporary files
+*.tmp

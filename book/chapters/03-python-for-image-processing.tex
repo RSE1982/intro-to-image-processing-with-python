@@ -1,2 +1,2251 @@
-% Chapter 3: Python for Image Processing
-% Scaffold -- content to be written and referenced.
+% ============================================================
+% Chapter 3
+% Python for Image Processing
+% ============================================================
+
+\chapter{Python for Image Processing}
+\label{ch:python-for-image-processing}
+
+
+% ============================================================
+\section{Learning Objectives}
+\label{sec:ch03-learning-objectives}
+
+By the end of this chapter, you should be able to:
+
+\begin{itemize}
+    \item explain the relationship between Python names, objects,
+    values and types;
+    \item use integers, floating-point values, Boolean values and
+    strings;
+    \item use arithmetic, comparison, logical and bitwise operators;
+    \item control program flow using conditional statements and loops;
+    \item create and manipulate lists, tuples and dictionaries;
+    \item use indexing and slicing;
+    \item define reusable functions with parameters and return values;
+    \item explain the difference between mutable and immutable
+    objects;
+    \item explain how Python function arguments differ from explicit
+    pointer use in C;
+    \item use type hints and documentation strings;
+    \item raise and handle exceptions;
+    \item organise reusable code into modules and packages;
+    \item create the initial \pyimage{} package using a
+    \texttt{src} layout;
+    \item define the package using \texttt{pyproject.toml};
+    \item install the package in editable mode;
+    \item create and run automated tests using pytest; and
+    \item implement the first reusable \pyimage{} utility function.
+\end{itemize}
+
+
+% ============================================================
+\section{Introduction}
+\label{sec:ch03-introduction}
+
+The purpose of this chapter is not to provide a complete introduction
+to the Python programming language. Python is a large general-purpose
+language, and many of its features are not immediately necessary for
+introductory image processing.
+
+Instead, this chapter concentrates on the language features that will
+be used repeatedly throughout the remainder of the book:
+
+\begin{itemize}
+    \item values and types;
+    \item expressions;
+    \item conditions;
+    \item repetition;
+    \item sequences;
+    \item functions;
+    \item modules;
+    \item exceptions; and
+    \item package organisation.
+\end{itemize}
+
+The official Python tutorial follows a similar approach, introducing
+the principal language features without attempting to provide a
+complete language reference \cite{python_tutorial}.
+
+\begin{historicalnote}
+The original UQC146S1 material took a deliberately focused approach
+to C. The introductory lecture states that there was only a limited
+period in which to introduce C before moving to image processing and
+that the aim was to cover a useful subset of the language
+\cite{johnson_uqc146_intro}.
+
+The surviving material progresses through functions, types,
+variables, operators and control flow before introducing arrays,
+pointers, file handling and other features needed by the
+image-processing work
+\cite{johnson_uqc146_intro,johnson_uqc146_c2,
+johnson_uqc146_c3}.
+
+This chapter retains that implementation-led philosophy while using
+Python 3.13 as the principal programming language.
+\end{historicalnote}
+
+
+% ============================================================
+\section{Python 3.13}
+\label{sec:python-313}
+
+The development environment established in the previous chapter
+targets the Python 3.13 release series.
+
+The active interpreter can be checked with:
+
+\begin{minted}{bash}
+python --version
+\end{minted}
+
+which should produce output beginning with:
+
+\begin{minted}{text}
+Python 3.13
+\end{minted}
+
+The companion notebook performs the same check programmatically:
+
+\begin{listing}[htbp]
+    \caption{Checking the Python version from within a program.}
+    \label{lst:check-python-version-ch03}
+
+\begin{minted}{python}
+import sys
+
+expected = (3, 13)
+actual = sys.version_info[:2]
+
+if actual == expected:
+    print("PASS: Python 3.13")
+else:
+    print(
+        "WARNING: expected Python 3.13, "
+        f"but found {actual[0]}.{actual[1]}"
+    )
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Names, Objects and Types}
+\label{sec:python-names-objects}
+
+One of the first differences to understand when moving from C to
+Python is the relationship between variables and types.
+
+In C, a declaration might be written as:
+
+\begin{minted}{c}
+int width = 640;
+\end{minted}
+
+The declaration explicitly identifies the type of the object.
+
+The corresponding Python statement is:
+
+\begin{minted}{python}
+width = 640
+\end{minted}
+
+Python does not require an explicit type declaration for the name.
+
+Python's data model describes program data in terms of objects. Every
+object has an identity, a type and a value
+\cite{python_data_model}.
+
+The name \mintinline{python}{width} is bound to an integer object.
+
+\begin{listing}[htbp]
+    \caption{Inspecting a Python value and its type.}
+    \label{lst:python-object-type}
+
+\begin{minted}{python}
+width = 640
+
+print(width)
+print(type(width))
+\end{minted}
+
+\end{listing}
+
+The result includes:
+
+\begin{minted}{text}
+640
+<class 'int'>
+\end{minted}
+
+
+% ============================================================
+\section{Dynamic Typing}
+\label{sec:dynamic-typing}
+
+Python is dynamically typed. A name is not permanently restricted to
+one declared type.
+
+For example:
+
+\begin{listing}[htbp]
+    \caption{Binding one name to objects of different types.}
+    \label{lst:dynamic-typing}
+
+\begin{minted}{python}
+value = 10
+print(type(value))
+
+value = 10.5
+print(type(value))
+
+value = "ten"
+print(type(value))
+\end{minted}
+
+\end{listing}
+
+The name \mintinline{python}{value} is successively bound to an
+integer, a floating-point value and a string.
+
+\begin{implementationnote}
+Dynamic typing does not mean that Python values have no types.
+Objects have definite types. It is the name that is not permanently
+restricted to one declared type.
+
+This distinction becomes particularly important in the next chapter,
+where NumPy arrays introduce explicit fixed-width data types such as
+\texttt{uint8}, \texttt{int16} and \texttt{float64}.
+\end{implementationnote}
+
+
+% ============================================================
+\section{Numeric Types}
+\label{sec:python-numeric-types}
+
+The two built-in numeric types used most frequently in the opening
+chapters are:
+
+\begin{description}
+
+    \item[\texttt{int}]
+    integer values;
+
+    \item[\texttt{float}]
+    floating-point values.
+
+\end{description}
+
+For example:
+
+\begin{minted}{python}
+width = 640
+height = 480
+
+gamma = 2.2
+scale = 0.5
+\end{minted}
+
+
+% ------------------------------------------------------------
+\subsection{Integers}
+
+Python's built-in integer type is not equivalent to an 8-bit or
+32-bit image type.
+
+For example:
+
+\begin{minted}{python}
+pixel = 300
+\end{minted}
+
+is perfectly valid as a Python integer.
+
+It would not, however, be a valid value for an unsigned 8-bit image
+sample, whose range is:
+
+\begin{equation}
+0 \leq p \leq 255.
+\end{equation}
+
+Fixed-width numerical representations will be introduced with NumPy.
+
+
+% ------------------------------------------------------------
+\subsection{Floating-Point Values}
+
+Floating-point values are written using a decimal point:
+
+\begin{minted}{python}
+gamma = 2.2
+contrast = 1.25
+\end{minted}
+
+Scientific notation can also be used:
+
+\begin{minted}{python}
+small_value = 1e-6
+large_value = 1e6
+\end{minted}
+
+Floating-point arithmetic becomes particularly important for
+colour-space conversion, interpolation, convolution and
+frequency-domain processing.
+
+
+% ============================================================
+\section{Arithmetic Operators}
+\label{sec:python-arithmetic}
+
+Python provides the familiar arithmetic operators.
+
+\begin{table}[htbp]
+    \centering
+
+    \caption{Common Python arithmetic operators.}
+    \label{tab:python-arithmetic}
+
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        \textbf{Operator} &
+        \textbf{Meaning} &
+        \textbf{Example} \\
+        \midrule
+
+        \texttt{+}  & addition       & \texttt{a + b} \\
+        \texttt{-}  & subtraction    & \texttt{a - b} \\
+        \texttt{*}  & multiplication & \texttt{a * b} \\
+        \texttt{/}  & true division  & \texttt{a / b} \\
+        \texttt{//} & floor division & \texttt{a // b} \\
+        \texttt{\%} & remainder      & \texttt{a \% b} \\
+        \texttt{**} & exponentiation & \texttt{a ** b} \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+For example:
+
+\begin{listing}[htbp]
+    \caption{Basic arithmetic in Python.}
+    \label{lst:python-arithmetic}
+
+\begin{minted}{python}
+width = 640
+height = 480
+
+pixels = width * height
+half_width = width / 2
+integer_half = width // 2
+
+print(pixels)
+print(half_width)
+print(integer_half)
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Division in C and Python}
+\label{sec:c-python-division}
+
+Division deserves particular attention when comparing C and Python.
+
+Consider:
+
+\begin{minted}{c}
+int x = 3;
+int y = 5;
+
+double result = x / y;
+\end{minted}
+
+Because both operands are integers, C performs integer division before
+assigning the result.
+
+The original teaching material used this type of example when
+introducing explicit type conversion
+\cite{johnson_uqc146_c2}.
+
+In Python:
+
+\begin{minted}{python}
+x = 3
+y = 5
+
+result = x / y
+\end{minted}
+
+produces:
+
+\begin{minted}{text}
+0.6
+\end{minted}
+
+Python uses \texttt{//} when floor division is required:
+
+\begin{minted}{python}
+result = x // y
+\end{minted}
+
+
+% ============================================================
+\section{Assignment}
+\label{sec:python-assignment}
+
+The assignment operator is:
+
+\begin{minted}{python}
+=
+\end{minted}
+
+For example:
+
+\begin{minted}{python}
+brightness = 20
+\end{minted}
+
+Augmented assignment can be used when updating an existing value:
+
+\begin{minted}{python}
+brightness += 10
+\end{minted}
+
+This is equivalent in effect to:
+
+\begin{minted}{python}
+brightness = brightness + 10
+\end{minted}
+
+
+% ============================================================
+\section{Boolean Values and Comparisons}
+\label{sec:python-booleans}
+
+Python provides a Boolean type with the values:
+
+\begin{minted}{python}
+True
+False
+\end{minted}
+
+Comparison operators include:
+
+\begin{table}[htbp]
+    \centering
+
+    \caption{Python comparison operators.}
+    \label{tab:python-comparisons}
+
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Operator} & \textbf{Meaning} \\
+        \midrule
+
+        \texttt{==} & equal to \\
+        \texttt{!=} & not equal to \\
+        \texttt{<}  & less than \\
+        \texttt{<=} & less than or equal to \\
+        \texttt{>}  & greater than \\
+        \texttt{>=} & greater than or equal to \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+For example:
+
+\begin{minted}{python}
+pixel = 200
+
+print(pixel > 127)
+print(pixel == 255)
+\end{minted}
+
+Python's logical operators are:
+
+\begin{minted}{python}
+and
+or
+not
+\end{minted}
+
+A range check can therefore be written:
+
+\begin{minted}{python}
+if pixel >= 0 and pixel <= 255:
+    print("Pixel is within range")
+\end{minted}
+
+Python also permits chained comparisons:
+
+\begin{minted}{python}
+if 0 <= pixel <= 255:
+    print("Pixel is within range")
+\end{minted}
+
+
+% ============================================================
+\section{Strings}
+\label{sec:python-strings}
+
+Python's text type is \mintinline{python}{str}.
+
+Strings may be created using either single or double quotation marks:
+
+\begin{minted}{python}
+filename = "image.pgm"
+message = 'Image loaded successfully'
+\end{minted}
+
+The historical C material describes strings as arrays of characters
+terminated by a null character
+\cite{johnson_uqc146_intro}.
+
+Python provides a higher-level text abstraction and does not require
+the programmer to manage a terminating null character directly.
+
+
+% ------------------------------------------------------------
+\subsection{Formatted Strings}
+
+Formatted string literals, normally called \emph{f-strings}, provide
+a convenient way to include values in diagnostic output:
+
+\begin{minted}{python}
+width = 640
+height = 480
+
+print(f"Image dimensions: {width} x {height}")
+\end{minted}
+
+
+% ============================================================
+\section{Conditional Execution}
+\label{sec:python-conditionals}
+
+Python uses \mintinline{python}{if},
+\mintinline{python}{elif} and
+\mintinline{python}{else} for conditional execution
+\cite{python_control_flow}.
+
+\begin{listing}[htbp]
+    \caption{Classifying a greyscale pixel.}
+    \label{lst:classify-pixel}
+
+\begin{minted}{python}
+pixel = 180
+
+if pixel < 85:
+    description = "dark"
+elif pixel < 170:
+    description = "mid-tone"
+else:
+    description = "bright"
+
+print(description)
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Indentation and Blocks}
+\label{sec:python-indentation}
+
+C commonly uses braces to delimit a block:
+
+\begin{minted}{c}
+if (pixel > 127)
+{
+    output = 255;
+}
+else
+{
+    output = 0;
+}
+\end{minted}
+
+Python uses indentation:
+
+\begin{minted}{python}
+if pixel > 127:
+    output = 255
+else:
+    output = 0
+\end{minted}
+
+Indentation is therefore part of Python's syntax rather than merely a
+formatting convention.
+
+
+% ============================================================
+\section{Repetition}
+\label{sec:python-repetition}
+
+Image-processing algorithms frequently repeat an operation across
+many samples.
+
+Python provides both \mintinline{python}{while} and
+\mintinline{python}{for} loops.
+
+
+% ------------------------------------------------------------
+\subsection{While Loops}
+
+A \mintinline{python}{while} loop continues while its condition
+remains true:
+
+\begin{minted}{python}
+x = 0
+
+while x < 5:
+    print(x)
+    x += 1
+\end{minted}
+
+
+% ------------------------------------------------------------
+\subsection{For Loops}
+
+Python's \mintinline{python}{for} statement iterates over an iterable
+object \cite{python_control_flow}.
+
+A counted loop commonly uses \mintinline{python}{range()}:
+
+\begin{minted}{python}
+for x in range(5):
+    print(x)
+\end{minted}
+
+which produces:
+
+\begin{minted}{text}
+0
+1
+2
+3
+4
+\end{minted}
+
+The stop value is excluded.
+
+
+% ============================================================
+\section{Lists}
+\label{sec:python-lists}
+
+A Python list is an ordered, mutable collection.
+
+For example:
+
+\begin{minted}{python}
+pixels = [0, 64, 128, 192, 255]
+\end{minted}
+
+Individual elements are accessed by index:
+
+\begin{minted}{python}
+print(pixels[0])
+print(pixels[4])
+\end{minted}
+
+Python sequences are zero-indexed.
+
+The original C teaching material similarly emphasised that C arrays
+begin at index zero
+\cite{johnson_uqc146_c2}.
+
+
+% ------------------------------------------------------------
+\subsection{Negative Indices}
+
+Python also supports negative indices:
+
+\begin{minted}{python}
+print(pixels[-1])
+\end{minted}
+
+which selects the final element.
+
+
+% ------------------------------------------------------------
+\subsection{Changing a List}
+
+Lists are mutable:
+
+\begin{minted}{python}
+pixels[0] = 20
+\end{minted}
+
+Items can also be appended:
+
+\begin{minted}{python}
+pixels.append(100)
+\end{minted}
+
+
+% ============================================================
+\section{Slicing}
+\label{sec:python-slicing}
+
+A sequence can be sliced using:
+
+\begin{minted}{text}
+start:stop
+\end{minted}
+
+For example:
+
+\begin{minted}{python}
+pixels = [0, 64, 128, 192, 255]
+
+middle = pixels[1:4]
+\end{minted}
+
+The result is:
+
+\begin{minted}{text}
+[64, 128, 192]
+\end{minted}
+
+The stop position is excluded.
+
+Other useful forms include:
+
+\begin{minted}{python}
+pixels[:3]
+pixels[2:]
+pixels[::2]
+pixels[::-1]
+\end{minted}
+
+Slicing will become substantially more important when NumPy arrays
+are introduced.
+
+
+% ============================================================
+\section{Nested Lists and Images}
+\label{sec:nested-lists}
+
+Before introducing NumPy, a small greyscale image can be represented
+using a list containing one list for each row:
+
+\begin{listing}[htbp]
+    \caption{A small image represented using nested Python lists.}
+    \label{lst:nested-list-image}
+
+\begin{minted}{python}
+image = [
+    [0, 64, 128],
+    [32, 96, 160],
+    [64, 128, 255],
+]
+\end{minted}
+
+\end{listing}
+
+Two loops can visit every pixel:
+
+\begin{minted}{python}
+for row in image:
+    for pixel in row:
+        print(pixel)
+\end{minted}
+
+When coordinates are also required,
+\mintinline{python}{enumerate()} can be used:
+
+\begin{minted}{python}
+for y, row in enumerate(image):
+    for x, pixel in enumerate(row):
+        print(x, y, pixel)
+\end{minted}
+
+Nested lists are useful for learning the algorithmic structure, but
+they will not be the principal image representation used by the
+finished library.
+
+
+% ============================================================
+\section{Tuples}
+\label{sec:python-tuples}
+
+A tuple is an ordered collection whose elements cannot be reassigned.
+
+For example:
+
+\begin{minted}{python}
+dimensions = (640, 480)
+\end{minted}
+
+Tuple unpacking allows the components to be assigned conveniently:
+
+\begin{minted}{python}
+width, height = dimensions
+\end{minted}
+
+Coordinate pairs and image dimensions are often represented this way.
+
+
+% ============================================================
+\section{Dictionaries}
+\label{sec:python-dictionaries}
+
+A dictionary stores key--value associations.
+
+For example:
+
+\begin{minted}{python}
+metadata = {
+    "width": 640,
+    "height": 480,
+    "channels": 3,
+}
+\end{minted}
+
+A value is accessed using its key:
+
+\begin{minted}{python}
+print(metadata["width"])
+\end{minted}
+
+Dictionaries will later be useful for metadata and structured
+configuration data.
+
+
+% ============================================================
+\section{Functions}
+\label{sec:python-functions}
+
+Functions are central to the design of this project.
+
+The original module emphasised functions as the mechanism through
+which programs could be modularised and code reused
+\cite{johnson_uqc146_intro}.
+
+Python defines a function using \mintinline{python}{def}:
+
+\begin{listing}[htbp]
+    \caption{A simple Python function.}
+    \label{lst:simple-python-function}
+
+\begin{minted}{python}
+def double(value):
+    return value * 2
+
+
+result = double(20)
+
+print(result)
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Parameters and Return Values}
+\label{sec:function-parameters}
+
+Parameters allow a function to operate on supplied data.
+
+For example:
+
+\begin{minted}{python}
+def image_size(width, height):
+    return width * height
+\end{minted}
+
+The function can be called with:
+
+\begin{minted}{python}
+pixels = image_size(640, 480)
+\end{minted}
+
+Python also makes it convenient to return several logical values:
+
+\begin{minted}{python}
+def dimensions():
+    return 640, 480
+
+
+width, height = dimensions()
+\end{minted}
+
+The function actually returns a tuple, which is then unpacked.
+
+
+% ============================================================
+\section{Mutable and Immutable Objects}
+\label{sec:python-mutability}
+
+The behaviour of function arguments becomes easier to understand once
+the distinction between mutable and immutable objects is clear.
+
+Examples of immutable objects include:
+
+\begin{itemize}
+    \item integers;
+    \item floating-point values;
+    \item strings; and
+    \item tuples.
+\end{itemize}
+
+Lists are mutable.
+
+
+% ------------------------------------------------------------
+\subsection{An Immutable Example}
+
+Consider:
+
+\begin{listing}[htbp]
+    \caption{Passing an integer to a function.}
+    \label{lst:immutable-argument}
+
+\begin{minted}{python}
+def increase(value):
+    value += 1
+    return value
+
+
+original = 10
+result = increase(original)
+
+print(original)
+print(result)
+\end{minted}
+
+\end{listing}
+
+The result is:
+
+\begin{minted}{text}
+10
+11
+\end{minted}
+
+
+% ------------------------------------------------------------
+\subsection{A Mutable Example}
+
+Now consider a list:
+
+\begin{listing}[htbp]
+    \caption{Modifying a mutable list inside a function.}
+    \label{lst:mutable-argument}
+
+\begin{minted}{python}
+def set_first_pixel(pixels):
+    pixels[0] = 255
+
+
+values = [0, 64, 128]
+
+set_first_pixel(values)
+
+print(values)
+\end{minted}
+
+\end{listing}
+
+The result is:
+
+\begin{minted}{text}
+[255, 64, 128]
+\end{minted}
+
+The list itself has been modified.
+
+
+% ============================================================
+\section{Python Arguments and C Pointers}
+\label{sec:python-c-pointers}
+
+The comparison with C requires care.
+
+The historical C material explains that C passes arguments by value.
+A pointer value can therefore be passed when a function needs to
+modify data held by its caller
+\cite{johnson_uqc146_c2}.
+
+For example:
+
+\begin{minted}{c}
+void modify(unsigned char *pixel)
+{
+    *pixel = 255;
+}
+\end{minted}
+
+Ordinary Python code does not use equivalent explicit pointer syntax.
+
+When a function is called, its parameter names are bound to the
+objects supplied by the caller. If the object is mutable, both the
+caller and the function may be able to observe changes made to that
+same object.
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+        node distance=12mm and 24mm,
+        every node/.style={
+            font=\small,
+            align=center
+        },
+        referencename/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=blue!55!black,
+            fill=blue!8,
+            minimum width=31mm,
+            minimum height=10mm
+        },
+        referenceobject/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=green!55!black,
+            fill=green!8,
+            minimum width=44mm,
+            minimum height=13mm
+        },
+        referencearrow/.style={
+            -{Latex[length=3mm]},
+            thick
+        }
+    ]
+
+        \node[referencename] (caller)
+        {caller name\\\texttt{values}};
+
+        \node[referencename, below=of caller] (parameter)
+        {parameter name\\\texttt{pixels}};
+
+        \node[
+            referenceobject,
+            right=of $(caller)!0.5!(parameter)$
+        ] (list)
+        {mutable list object\\
+        \texttt{[0, 64, 128]}};
+
+        \draw[referencearrow] (caller) -- (list);
+        \draw[referencearrow] (parameter) -- (list);
+
+    \end{tikzpicture}
+
+    \caption{Two Python names may refer to the same mutable object.}
+    \label{fig:python-object-reference}
+\end{figure}
+
+This becomes especially important when NumPy arrays are passed to
+image-processing functions.
+
+
+% ============================================================
+\section{Copies}
+\label{sec:python-copies}
+
+If an existing list should not be modified, a copy can be made:
+
+\begin{minted}{python}
+original = [0, 64, 128]
+result = original.copy()
+
+result[0] = 255
+
+print(original)
+print(result)
+\end{minted}
+
+The result is:
+
+\begin{minted}{text}
+[0, 64, 128]
+[255, 64, 128]
+\end{minted}
+
+NumPy introduces a more detailed distinction between copies and
+views, which will be examined in the next chapter.
+
+
+% ============================================================
+\section{Type Hints}
+\label{sec:python-type-hints}
+
+Python supports optional type annotations.
+
+For example:
+
+\begin{minted}{python}
+def image_size(width: int, height: int) -> int:
+    return width * height
+\end{minted}
+
+The annotations:
+
+\begin{minted}{python}
+width: int
+height: int
+\end{minted}
+
+describe the intended argument types, while:
+
+\begin{minted}{python}
+-> int
+\end{minted}
+
+describes the expected return type.
+
+Type hints primarily improve documentation, editor support and static
+analysis. They do not normally cause Python itself to enforce those
+types at runtime.
+
+
+% ============================================================
+\section{Documentation Strings}
+\label{sec:python-docstrings}
+
+A function can contain a documentation string, normally shortened to
+\emph{docstring}.
+
+For example:
+
+\begin{listing}[htbp]
+    \caption{A function containing a documentation string.}
+    \label{lst:function-docstring}
+
+\begin{minted}{python}
+def image_size(width: int, height: int) -> int:
+    """Return the number of pixels in an image.
+
+    Parameters
+    ----------
+    width:
+        Image width in pixels.
+    height:
+        Image height in pixels.
+
+    Returns
+    -------
+    int
+        Total number of pixels.
+    """
+    return width * height
+\end{minted}
+
+\end{listing}
+
+The documentation can be inspected interactively:
+
+\begin{minted}{python}
+help(image_size)
+\end{minted}
+
+
+% ============================================================
+\section{Exceptions}
+\label{sec:python-exceptions}
+
+Reusable functions should not silently accept every possible input.
+
+Python uses exceptions to report errors and exceptional conditions.
+
+For example:
+
+\begin{minted}{python}
+raise TypeError("value must be an integer")
+\end{minted}
+
+An exception can be handled with:
+
+\begin{minted}{python}
+try:
+    ...
+except TypeError as error:
+    print(error)
+\end{minted}
+
+Library code should generally raise a meaningful exception and allow
+the calling code to determine how that error should be handled.
+
+
+% ============================================================
+\section{Modules and Imports}
+\label{sec:python-modules}
+
+As the project grows, functions should not all remain in one source
+file.
+
+A Python source file can act as a module.
+
+For example:
+
+\begin{minted}{text}
+utilities.py
+\end{minted}
+
+can contain utility functions.
+
+Several import styles are available.
+
+Import a complete module:
+
+\begin{minted}{python}
+import math
+
+value = math.sqrt(25)
+\end{minted}
+
+Import one name:
+
+\begin{minted}{python}
+from math import sqrt
+
+value = sqrt(25)
+\end{minted}
+
+Import using a conventional alias:
+
+\begin{minted}{python}
+import numpy as np
+\end{minted}
+
+The \mintinline{python}{np} alias for NumPy will be used consistently
+throughout this book.
+
+
+% ============================================================
+\section{Bitwise Operations}
+\label{sec:python-bitwise}
+
+The original C material introduced bitwise operations because they are
+important when working with binary data
+\cite{johnson_uqc146_c2}.
+
+Python provides equivalent operators:
+
+\begin{table}[htbp]
+    \centering
+
+    \caption{Common Python bitwise operators.}
+    \label{tab:python-bitwise}
+
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Operator} & \textbf{Operation} \\
+        \midrule
+
+        \texttt{\&}       & AND \\
+        \texttt{|}        & OR \\
+        \texttt{\char94}  & XOR \\
+        \texttt{\char126} & complement \\
+        \texttt{<<}       & left shift \\
+        \texttt{>>}       & right shift \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+For example:
+
+\begin{listing}[htbp]
+    \caption{Testing an individual bit using a mask.}
+    \label{lst:python-bitmask}
+
+\begin{minted}{python}
+value = 0b10110100
+mask = 0b00000100
+
+if value & mask:
+    print("The bit is set")
+else:
+    print("The bit is clear")
+\end{minted}
+
+\end{listing}
+
+Bit-level processing will become important when binary image formats
+and Huffman coding are implemented.
+
+
+% ============================================================
+\section{Binary and Hexadecimal Literals}
+\label{sec:binary-hexadecimal}
+
+Python integers may be written directly in binary or hexadecimal
+form:
+
+\begin{minted}{python}
+binary_value = 0b11111111
+hex_value = 0xFF
+\end{minted}
+
+Both values represent decimal 255:
+
+\begin{minted}{python}
+assert binary_value == hex_value == 255
+\end{minted}
+
+
+% ============================================================
+\section{The First Image-Processing Utility}
+\label{sec:first-utility}
+
+A small but useful function can now be developed using the Python
+features introduced so far.
+
+Many image-processing operations create intermediate numerical values
+outside the range of an unsigned 8-bit image.
+
+For example:
+
+\begin{equation}
+250 + 20 = 270.
+\end{equation}
+
+If the destination is limited to the range:
+
+\begin{equation}
+0 \leq p \leq 255,
+\end{equation}
+
+the result must be handled deliberately.
+
+One common operation is \emph{clamping}:
+
+\begin{equation}
+C(v) =
+\begin{cases}
+0,   & v < 0,\\
+255, & v > 255,\\
+v,   & \text{otherwise}.
+\end{cases}
+\end{equation}
+
+
+% ============================================================
+\section{A First Python Implementation}
+\label{sec:first-clamp}
+
+The initial implementation is:
+
+\begin{listing}[htbp]
+    \caption{A first implementation of unsigned 8-bit clamping.}
+    \label{lst:first-clamp-python}
+
+\begin{minted}{python}
+def clamp_u8(value):
+    if value < 0:
+        return 0
+
+    if value > 255:
+        return 255
+
+    return value
+\end{minted}
+
+\end{listing}
+
+Example calls are:
+
+\begin{minted}{python}
+print(clamp_u8(-20))
+print(clamp_u8(100))
+print(clamp_u8(300))
+\end{minted}
+
+which produce:
+
+\begin{minted}{text}
+0
+100
+255
+\end{minted}
+
+
+% ============================================================
+\section{A Reconstructed C Equivalent}
+\label{sec:clamp-c}
+
+A corresponding C implementation might be:
+
+\begin{listing}[htbp]
+    \caption{A reconstructed C implementation of unsigned 8-bit
+    clamping.}
+    \label{lst:clamp-u8-c}
+
+\begin{minted}{c}
+unsigned char clamp_u8(int value)
+{
+    if (value < 0)
+        return 0;
+
+    if (value > 255)
+        return 255;
+
+    return (unsigned char) value;
+}
+\end{minted}
+
+\end{listing}
+
+\begin{historicalnote}
+\Cref{lst:clamp-u8-c} has been written specifically for this book.
+It illustrates the type of C implementation associated with the
+historical course but is not a verbatim reproduction of Ian Johnson's
+teaching source.
+
+The original material explicitly identifies
+\mintinline{c}{unsigned char} as having the range 0--255 and discusses
+the importance of C types and type conversion
+\cite{johnson_uqc146_intro,johnson_uqc146_c2}.
+\end{historicalnote}
+
+
+% ============================================================
+\section{Improving the Python Function}
+\label{sec:improving-clamp}
+
+The implementation can now be improved with type hints,
+documentation and validation.
+
+\begin{listing}[htbp]
+    \caption{The documented and validated
+    \texttt{clamp\_u8()} function.}
+    \label{lst:clamp-u8-final}
+
+\begin{minted}{python}
+def clamp_u8(value: int) -> int:
+    """Clamp an integer to the unsigned 8-bit range.
+
+    Parameters
+    ----------
+    value:
+        Integer value to clamp.
+
+    Returns
+    -------
+    int
+        The value constrained to the range 0 to 255.
+
+    Raises
+    ------
+    TypeError
+        If value is not an integer.
+    """
+    if not isinstance(value, int):
+        raise TypeError("value must be an integer")
+
+    if value < 0:
+        return 0
+
+    if value > 255:
+        return 255
+
+    return value
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Moving from a Function to a Package}
+\label{sec:first-package}
+
+The function currently exists only as an example. The aim of the book
+is to create a reusable image-processing library, so finished
+implementations need a permanent location.
+
+The library developed throughout the book is called \pyimage{}.
+
+The initial project structure is:
+
+\begin{minted}{text}
+project/
+|-- pyproject.toml
+|
+|-- src/
+|   `-- pyimage/
+|       |-- __init__.py
+|       `-- utilities.py
+|
+`-- tests/
+    `-- test_utilities.py
+\end{minted}
+
+This structure uses what is commonly called a \emph{src layout}. The
+importable Python package is stored beneath:
+
+\begin{minted}{text}
+project/src/
+\end{minted}
+
+rather than directly in the project root.
+
+
+% ============================================================
+\section{Creating \texttt{pyproject.toml}}
+\label{sec:ch03-pyproject}
+
+The project needs enough packaging information for Python tooling to
+discover and install \pyimage{}.
+
+Create:
+
+\begin{minted}{text}
+project/pyproject.toml
+\end{minted}
+
+with the following initial contents:
+
+\begin{listing}[htbp]
+    \caption{Initial \texttt{pyproject.toml} for \pyimage{}.}
+    \label{lst:initial-pyproject}
+
+\begin{minted}{toml}
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyimage"
+version = "0.1.0"
+description = "Image-processing algorithms developed for Introduction to Image Processing with Python"
+
+authors = [
+    { name = "Robert Elliott" }
+]
+
+requires-python = ">=3.13,<3.14"
+
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pillow",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+\end{minted}
+
+\end{listing}
+
+The file has three immediate purposes.
+
+\begin{description}
+
+    \item[\texttt{[build-system]}]
+    identifies the build backend.
+
+    \item[\texttt{[project]}]
+    records package metadata, the supported Python version and runtime
+    dependencies.
+
+    \item[\texttt{[tool.setuptools.packages.find]}]
+    tells setuptools to discover packages beneath the
+    \texttt{src} directory.
+
+\end{description}
+
+The Python requirement:
+
+\begin{minted}{toml}
+requires-python = ">=3.13,<3.14"
+\end{minted}
+
+matches the Python 3.13 environment established in the previous
+chapter.
+
+
+% ============================================================
+\section{Creating the Package Initialiser}
+\label{sec:package-initialiser}
+
+Create:
+
+\begin{minted}{text}
+project/src/pyimage/__init__.py
+\end{minted}
+
+with:
+
+\begin{listing}[htbp]
+    \caption{Initial \texttt{pyimage} package initialiser.}
+    \label{lst:pyimage-init}
+
+\begin{minted}{python}
+"""Image-processing algorithms developed throughout the book."""
+
+from .utilities import clamp_u8
+
+__all__ = ["clamp_u8"]
+\end{minted}
+
+\end{listing}
+
+This gives the package a simple public interface.
+
+The function can then eventually be imported as:
+
+\begin{minted}{python}
+from pyimage import clamp_u8
+\end{minted}
+
+or directly from its module:
+
+\begin{minted}{python}
+from pyimage.utilities import clamp_u8
+\end{minted}
+
+
+% ============================================================
+\section{Creating \texttt{utilities.py}}
+\label{sec:utilities-module}
+
+Create:
+
+\begin{minted}{text}
+project/src/pyimage/utilities.py
+\end{minted}
+
+The first permanent implementation in the package is:
+
+\begin{listing}[htbp]
+    \caption{Initial implementation of
+    \texttt{pyimage.utilities}.}
+    \label{lst:utilities-module}
+
+\begin{minted}{python}
+"""Utility functions used by the pyimage package."""
+
+__all__ = ["clamp_u8"]
+
+
+def clamp_u8(value: int) -> int:
+    """Clamp an integer to the unsigned 8-bit range.
+
+    Parameters
+    ----------
+    value:
+        Integer value to clamp.
+
+    Returns
+    -------
+    int
+        The value constrained to the range 0 to 255.
+
+    Raises
+    ------
+    TypeError
+        If value is not an integer.
+    """
+    if not isinstance(value, int):
+        raise TypeError("value must be an integer")
+
+    if value < 0:
+        return 0
+
+    if value > 255:
+        return 255
+
+    return value
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Installing \pyimage{} in Editable Mode}
+\label{sec:editable-install}
+
+Creating the package directory does not automatically make
+\pyimage{} importable from arbitrary locations.
+
+The package should be installed into the active conda environment.
+
+From the repository root, with the
+\texttt{image-processing-python} environment active, run:
+
+\begin{minted}{bash}
+python -m pip install -e ./project
+\end{minted}
+
+The \texttt{-e} option requests an editable installation.
+
+The important consequence is that the installed package continues to
+refer to the project's working source tree. Editing:
+
+\begin{minted}{text}
+project/src/pyimage/
+\end{minted}
+
+does not require the package to be reinstalled after every source-code
+change.
+
+\begin{implementationnote}
+Using:
+
+\begin{minted}{bash}
+python -m pip
+\end{minted}
+
+rather than simply:
+
+\begin{minted}{bash}
+pip
+\end{minted}
+
+makes it explicit that pip is being run using the currently selected
+Python interpreter.
+\end{implementationnote}
+
+
+% ============================================================
+\section{Verifying the Installation}
+\label{sec:verify-pyimage-install}
+
+The installed package can be checked with:
+
+\begin{minted}{bash}
+python -c "import pyimage; print(pyimage.__file__)"
+\end{minted}
+
+The output should point to the \pyimage{} package associated with the
+project source tree.
+
+The utility can also be imported directly:
+
+\begin{minted}{bash}
+python -c "from pyimage import clamp_u8; print(clamp_u8(300))"
+\end{minted}
+
+The result should be:
+
+\begin{minted}{text}
+255
+\end{minted}
+
+
+% ============================================================
+\section{Why the Editable Installation Is Necessary}
+\label{sec:why-editable}
+
+With a \texttt{src} layout, Python does not automatically know that:
+
+\begin{minted}{text}
+project/src/
+\end{minted}
+
+contains the package.
+
+Before installation, attempting:
+
+\begin{minted}{python}
+from pyimage.utilities import clamp_u8
+\end{minted}
+
+may therefore produce:
+
+\begin{minted}{text}
+ModuleNotFoundError: No module named 'pyimage'
+\end{minted}
+
+Installing the package solves this without abandoning the
+\texttt{src} layout.
+
+
+% ============================================================
+\section{Automated Testing}
+\label{sec:first-pytest}
+
+The notebook is useful for exploration, but the reusable package
+should be tested independently.
+
+The project uses pytest.
+
+Create:
+
+\begin{minted}{text}
+project/tests/test_utilities.py
+\end{minted}
+
+with:
+
+\begin{listing}[htbp]
+    \caption{Automated tests for \texttt{clamp\_u8()}.}
+    \label{lst:test-utilities}
+
+\begin{minted}{python}
+"""Tests for pyimage.utilities."""
+
+import pytest
+
+from pyimage.utilities import clamp_u8
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (-100, 0),
+        (-1, 0),
+        (0, 0),
+        (1, 1),
+        (100, 100),
+        (254, 254),
+        (255, 255),
+        (256, 255),
+        (1000, 255),
+    ],
+)
+def test_clamp_u8(
+    value: int,
+    expected: int,
+) -> None:
+    """Values should be constrained to the uint8 range."""
+    assert clamp_u8(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        1.5,
+        "100",
+        None,
+        [100],
+        (100,),
+    ],
+)
+def test_clamp_u8_rejects_non_integers(
+    value: object,
+) -> None:
+    """Non-integer input should raise TypeError."""
+    with pytest.raises(
+        TypeError,
+        match="value must be an integer",
+    ):
+        clamp_u8(value)
+\end{minted}
+
+\end{listing}
+
+
+% ============================================================
+\section{Running the Tests}
+\label{sec:running-first-tests}
+
+From the repository root run:
+
+\begin{minted}{bash}
+python -m pytest
+\end{minted}
+
+Using:
+
+\begin{minted}{bash}
+python -m pytest
+\end{minted}
+
+rather than executing the test file directly ensures that pytest is
+run through the active Python environment.
+
+A successful run should report that all collected tests have passed.
+
+
+% ============================================================
+\section{Testing Boundaries}
+\label{sec:test-boundaries}
+
+The tests deliberately include values around the two important
+boundaries:
+
+\begin{equation}
+0
+\end{equation}
+
+and:
+
+\begin{equation}
+255.
+\end{equation}
+
+The cases include:
+
+\begin{itemize}
+    \item values below zero;
+    \item zero itself;
+    \item values within the valid range;
+    \item 255 itself; and
+    \item values above 255.
+\end{itemize}
+
+This is more useful than testing only an ordinary value such as 100.
+
+Boundary testing will become increasingly important as the
+image-processing algorithms become more complex.
+
+
+% ============================================================
+\section{Notebook, Package and Tests}
+\label{sec:notebook-package-tests}
+
+The project now has three different places in which code may appear.
+
+They have deliberately different roles.
+
+\begin{description}
+
+    \item[Notebook]
+    used for explanation, experimentation and visualisation.
+
+    \item[\pyimage{} package]
+    contains the finished reusable implementation.
+
+    \item[Test suite]
+    independently verifies the package behaviour.
+
+\end{description}
+
+The workflow is therefore:
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{tikzpicture}[
+        node distance=8mm,
+        every node/.style={
+            align=center,
+            font=\small
+        },
+        chapterstep/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=blue!55!black,
+            fill=blue!7,
+            minimum width=52mm,
+            minimum height=10mm
+        },
+        packagestep/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=green!55!black,
+            fill=green!8,
+            minimum width=52mm,
+            minimum height=10mm
+        },
+        teststep/.style={
+            rectangle,
+            rounded corners=2mm,
+            draw=orange!70!black,
+            fill=orange!9,
+            minimum width=52mm,
+            minimum height=10mm
+        },
+        workflowarrow/.style={
+            -{Latex[length=3mm]},
+            thick
+        }
+    ]
+
+        \node[chapterstep] (theory)
+        {Understand the concept};
+
+        \node[chapterstep, below=of theory] (notebook)
+        {Experiment in the notebook};
+
+        \node[packagestep, below=of notebook] (package)
+        {Implement in \texttt{src/pyimage/}};
+
+        \node[packagestep, below=of package] (install)
+        {Editable package installation};
+
+        \node[teststep, below=of install] (tests)
+        {Verify independently with pytest};
+
+        \draw[workflowarrow] (theory) -- (notebook);
+        \draw[workflowarrow] (notebook) -- (package);
+        \draw[workflowarrow] (package) -- (install);
+        \draw[workflowarrow] (install) -- (tests);
+
+    \end{tikzpicture}
+
+    \caption{The implementation workflow established in Chapter 3.}
+    \label{fig:chapter03-workflow}
+\end{figure}
+
+This pattern will be repeated throughout the remainder of the book.
+
+
+% ============================================================
+\section{C and Python: A Working Comparison}
+\label{sec:c-python-comparison}
+
+Python removes a considerable amount of explicit machinery compared
+with C, but the underlying programming concepts remain important.
+
+\begin{table}[htbp]
+    \centering
+
+    \caption{Selected C concepts and their Python counterparts.}
+    \label{tab:c-python-comparison}
+
+    \begin{tabularx}{\textwidth}{@{} l X X @{}}
+        \toprule
+
+        \textbf{Concept} &
+        \textbf{C} &
+        \textbf{Python} \\
+
+        \midrule
+
+        Type &
+        Explicit declaration &
+        Object has a type; name is dynamically bound \\
+
+        Function &
+        Typed declaration &
+        \texttt{def}, with optional annotations \\
+
+        Block &
+        Braces &
+        Indentation \\
+
+        Sequence &
+        Array &
+        List; later NumPy array \\
+
+        Modification through function &
+        Often explicit pointer &
+        Shared mutable object \\
+
+        Memory allocation &
+        Can require explicit management &
+        Normally managed by runtime \\
+
+        Library organisation &
+        Source and header files &
+        Modules and packages \\
+
+        Build metadata &
+        Makefile/compiler/linker settings &
+        \texttt{pyproject.toml} and packaging tools \\
+
+        Tests &
+        Custom test programs/frameworks &
+        pytest test suite \\
+
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+
+% ============================================================
+\section{From Lists to NumPy Arrays}
+\label{sec:lists-to-numpy}
+
+This chapter has deliberately used ordinary Python lists when
+introducing basic programming concepts.
+
+For example:
+
+\begin{minted}{python}
+image = [
+    [0, 64, 128],
+    [64, 128, 192],
+    [128, 192, 255],
+]
+\end{minted}
+
+This is useful for learning, but it is not the principal image
+representation that will be used by \pyimage{}.
+
+The next chapter introduces NumPy arrays, which provide:
+
+\begin{itemize}
+    \item multidimensional shape information;
+    \item fixed-width numeric data types;
+    \item efficient numerical storage;
+    \item multidimensional slicing;
+    \item views and copies;
+    \item broadcasting; and
+    \item vectorised operations.
+\end{itemize}
+
+
+% ============================================================
+\section{Companion Notebook}
+\label{sec:ch03-notebook}
+
+The companion notebook is:
+
+\begin{minted}{text}
+notebooks/03-python-for-image-processing.ipynb
+\end{minted}
+
+It provides executable examples of:
+
+\begin{itemize}
+    \item Python types;
+    \item arithmetic;
+    \item conditions;
+    \item loops;
+    \item nested image lists;
+    \item indexing and slicing;
+    \item functions;
+    \item mutable and immutable objects;
+    \item exceptions;
+    \item bitwise operations;
+    \item the development of \texttt{clamp\_u8()}; and
+    \item worked exercises with complete solutions.
+\end{itemize}
+
+
+% ============================================================
+\section{Review Questions}
+\label{sec:ch03-review}
+
+\begin{enumerate}
+
+    \item What is the difference between a Python name and a Python
+    object?
+
+    \item What does it mean to describe Python as dynamically typed?
+
+    \item Why does dynamic typing not mean that Python objects have no
+    type?
+
+    \item What is the difference between the \texttt{/} and
+    \texttt{//} operators?
+
+    \item Why is indentation significant in Python?
+
+    \item What values are produced by \texttt{range(5)}?
+
+    \item What is the difference between a list and a tuple?
+
+    \item Why can a function modify a list supplied by its caller?
+
+    \item How does this differ from explicitly passing a pointer in C?
+
+    \item What purpose do type hints serve?
+
+    \item What is a docstring?
+
+    \item Why should reusable library code normally raise an
+    exception rather than simply print an error?
+
+    \item Why is \texttt{clamp\_u8()} useful in an image-processing
+    library?
+
+    \item Why is \texttt{pyproject.toml} required by this project?
+
+    \item What is meant by an editable installation?
+
+    \item Why does the project use a \texttt{src} directory?
+
+    \item Why are the authoritative tests stored outside the Jupyter
+    notebook?
+
+    \item Why is \texttt{python -m pytest} preferable to executing
+    \texttt{test\_utilities.py} directly?
+
+    \item Why will NumPy arrays replace nested lists as the principal
+    image representation?
+
+\end{enumerate}
+
+
+% ============================================================
+\section{Project Files}
+\label{sec:ch03-project-files}
+
+\begin{projectfiles}
+
+By the end of this chapter the relevant project files are:
+
+\begin{minted}{text}
+notebooks/
+`-- 03-python-for-image-processing.ipynb
+
+project/
+|-- pyproject.toml
+|
+|-- src/
+|   `-- pyimage/
+|       |-- __init__.py
+|       `-- utilities.py
+|
+`-- tests/
+    `-- test_utilities.py
+\end{minted}
+
+The package is installed from the repository root with:
+
+\begin{minted}{bash}
+python -m pip install -e ./project
+\end{minted}
+
+and tested with:
+
+\begin{minted}{bash}
+python -m pytest
+\end{minted}
+
+The first permanent \pyimage{} function is:
+
+\begin{minted}{python}
+clamp_u8()
+\end{minted}
+
+\end{projectfiles}
+
+
+% ============================================================
+\section{Chapter Summary}
+\label{sec:ch03-summary}
+
+This chapter introduced the subset of Python required to begin
+implementing image-processing algorithms.
+
+Python values have definite types, while names are dynamically bound
+to objects. Conditions control execution, loops express repetition
+and collections organise data. Functions provide the basis for
+modular and reusable software.
+
+The comparison with C demonstrates that Python operates at a higher
+level of abstraction, but many of the underlying concerns remain.
+Types still matter, mutable data can still be changed by functions,
+binary representations still require bit-level operations and
+software still needs to be organised into reusable components.
+
+The chapter also moved beyond isolated examples and established the
+first real version of the \pyimage{} package. The project now
+contains:
+
+\begin{itemize}
+    \item a \texttt{pyproject.toml} definition;
+    \item a \texttt{src/pyimage} package;
+    \item a public package initialiser;
+    \item the first reusable utility function;
+    \item an editable installation; and
+    \item an independent pytest test suite.
+\end{itemize}
+
+This provides the development pattern that will be followed for the
+remainder of the book:
+
+\begin{center}
+theory
+$\rightarrow$
+notebook
+$\rightarrow$
+package
+$\rightarrow$
+tests.
+\end{center}
+
+The next chapter introduces NumPy and replaces the temporary nested
+list representation with efficient multidimensional numerical arrays.
