@@ -1,0 +1,33 @@
+\chapter*{Companion Project Files}
+\addcontentsline{toc}{chapter}{Companion Project Files}
+
+The source distribution is organised so that the manuscript, executable
+notebooks and reusable Python package can evolve together.
+
+\begin{verbatim}
+introduction-to-image-processing-with-python/
+|-- book/
+|   |-- main.tex
+|   |-- preamble.tex
+|   |-- references.bib
+|   |-- frontmatter/
+|   |-- chapters/
+|   |-- appendices/
+|   `-- figures/
+|-- notebooks/
+|-- project/
+|   |-- pyproject.toml
+|   |-- src/pyimage/
+|   |-- tests/
+|   |-- examples/
+|   `-- images/
+`-- source-notes/
+\end{verbatim}
+
+The notebooks are the executable companion to individual chapters. The
+\pyimage{} package is the finished reusable implementation. The test suite is
+kept outside the notebooks so that the complete package can be verified from
+the command line or from the integrated terminal in Visual Studio Code.
+
+Publication releases should eventually tag the companion project with a
+version corresponding to the edition of the book.
