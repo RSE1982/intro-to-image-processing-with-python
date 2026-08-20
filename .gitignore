@@ -1,0 +1,30 @@
+# LaTeX build products
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lol
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+book/main.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors/OS
+.DS_Store
