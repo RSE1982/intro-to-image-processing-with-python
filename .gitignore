@@ -16,7 +16,7 @@
 *.run.xml
 *.synctex.gz
 *.toc
-main.pdf
+*.pdf
 
 # Python
 __pycache__/
