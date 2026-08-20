@@ -30,5 +30,4 @@ __pycache__/
 # Editors/OS
 .DS_Store
 
-# LaTeX packages
 _minted
